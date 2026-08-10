@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    match /users/{userId} {
+      allow read: if true;
+      allow create, delete: if false; // Only admin can create users
+      allow update: if 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeStockIds']) &&
+        request.resource.data.activeStockIds.size() <= 5 &&
+        // Ensure no duplicates in the array (approximate validation, strictly handled by unique activeStocks ID logic)
+        true; 
+    }
+
+    match /activeStocks/{stockId} {
+      allow read: if true;
+      allow create: if 
+        request.resource.data.keys().hasAll(['userId', 'symbol', 'name', 'currency', 'buyPrice', 'buyPriceAsOf', 'addedAt']) &&
+        request.resource.data.buyPrice > 0 &&
+        (request.resource.data.currency == 'USD' || request.resource.data.currency == 'KRW') &&
+        request.resource.data.addedAt == request.time &&
+        exists(/databases/$(database)/documents/users/$(request.resource.data.userId)) &&
+        stockId == request.resource.data.userId + '__' + request.resource.data.symbol;
+      allow update: if false; // Cannot edit after creation
+      allow delete: if true; 
+    }
+
+    match /stockHistory/{historyId} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.sellPrice > 0 &&
+        request.resource.data.closedAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}

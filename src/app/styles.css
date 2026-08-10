@@ -1,0 +1,207 @@
+:root {
+  --color-primary: #3182f6; /* 토스 블루 */
+  --color-success: #f04452; /* 한국 금융 UI 상승: 빨강 */
+  --color-danger: #3182f6; /* 한국 금융 UI 하락: 파랑 (토스 블루 재사용) */
+  --color-text-primary: #191f28;
+  --color-text-secondary: #8b95a1;
+  --color-bg-primary: #f2f4f6;
+  --color-bg-surface: #ffffff;
+  --color-border: #e5e8eb;
+  
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-bg-surface);
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.auth-screen {
+  padding: var(--spacing-xl) var(--spacing-md);
+  text-align: center;
+}
+
+.user-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
+}
+
+.user-btn {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-btn:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-primary);
+}
+
+/* App Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-surface);
+  z-index: 10;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: var(--spacing-md) 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-text-primary);
+}
+
+/* Stock Card */
+.stock-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stock-info h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 16px;
+}
+
+.stock-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.stock-price {
+  text-align: right;
+}
+
+.stock-price h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 16px;
+}
+
+.stock-price p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.price-up { color: var(--color-success); }
+.price-down { color: var(--color-danger); }
+.price-neutral { color: var(--color-text-secondary); }
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--spacing-lg);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--color-bg-surface);
+  width: 100%;
+  max-width: 480px;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  padding: var(--spacing-lg) var(--spacing-md);
+  padding-bottom: max(var(--spacing-lg), env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  margin-bottom: var(--spacing-md);
+  box-sizing: border-box;
+}
+
+.error-text {
+  color: var(--color-danger);
+  font-size: 14px;
+  margin-top: var(--spacing-sm);
+}
