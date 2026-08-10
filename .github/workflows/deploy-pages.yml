@@ -36,10 +36,10 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: "true"
-          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_API_KEY: 'AIzaSyBX-WZo7pnLRI43RnZYptW60FXY3ayB0kc'
+          VITE_FIREBASE_AUTH_DOMAIN: 'planning-with-ai-a3485.firebaseapp.com'
+          VITE_FIREBASE_PROJECT_ID: 'planning-with-ai-a3485'
+          VITE_FIREBASE_APP_ID: '1:303429363708:web:b2df55578c0cf0e3de7479'
           VITE_WORKER_API_URL: ${{ vars.VITE_WORKER_API_URL }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
