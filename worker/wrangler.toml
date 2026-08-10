@@ -2,17 +2,27 @@ name = "stock-polio-worker"
 main = "src/index.ts"
 compatibility_date = "2024-03-20"
 
-[[rate_limits]]
-binding = "SEARCH_LIMITER"
+[vars]
+# 배포 주소로 교체하거나 쉼표로 여러 주소를 지정하세요.
+ALLOWED_ORIGINS = "https://YOUR_GITHUB_ID.github.io"
+
+[[ratelimits]]
+name = "SEARCH_LIMITER"
+namespace_id = "1001"
+[ratelimits.simple]
 limit = 30
 period = 60
 
-[[rate_limits]]
-binding = "QUOTE_LIMITER"
+[[ratelimits]]
+name = "QUOTE_LIMITER"
+namespace_id = "1002"
+[ratelimits.simple]
 limit = 60
 period = 60
 
-[[rate_limits]]
-binding = "FRESH_QUOTE_LIMITER"
+[[ratelimits]]
+name = "FRESH_QUOTE_LIMITER"
+namespace_id = "1003"
+[ratelimits.simple]
 limit = 10
 period = 60

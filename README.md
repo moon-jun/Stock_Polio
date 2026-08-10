@@ -1,9 +1,9 @@
-# StockPick 최종 구현 계획
+# 워렌 버핏의 어린 시절 투자일기 구현 계획
 
 > **For Antigravity:** REQUIRED SUB-SKILL: Load executing-plans to implement this plan task-by-task.
 
 ## 1. 확정 결정
-- **앱 표시 이름:** StockPick
+- **앱 표시 이름:** 워렌 버핏의 어린 시절 투자일기
 - **저장소 이름:** Stock_Polio (현재 `friends_wallet` 저장소와 분리된 새 저장소로 생성)
 - **사용자:** 미리 등록된 친구 7명 중 선택
 - **인증:** Firebase Authentication 미사용
@@ -20,6 +20,11 @@
 - **종목 범위:** 미국·코스피·코스닥 일반 주식, ETF 제외
 - **색상:** 한국 금융 UI 기준 상승 빨강, 하락 파랑
 - **정확한 패키지 버전은 package-lock.json으로 고정**
+
+### 운영 설정
+- `worker/wrangler.toml`의 `ALLOWED_ORIGINS`를 실제 GitHub Pages origin으로 변경합니다.
+- KIS fallback을 사용하려면 `wrangler secret put KIS_APP_KEY`와 `wrangler secret put KIS_APP_SECRET`을 실행합니다.
+- 사용자 문서는 이름을 처음 선택할 때 생성할 수 있으며, Rules는 올바른 초기 필드와 빈 활성 종목 배열만 허용합니다.
 
 ## 2. 프로젝트 경계
 현재 `friends_wallet` 안에서 다음 명령을 실행하면 안 됩니다. 구현 시작 전 반드시 확인합니다.

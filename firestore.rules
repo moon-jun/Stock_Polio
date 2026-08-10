@@ -1,35 +1,100 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+    // FriendsWallet
+    match /wallets/{walletId}/friends/{friendId} {
+      allow read, write: if true;
+    }
+
+    match /auth/{walletId} {
+      allow read: if true;
+    }
+
+    match /bets/{betId} {
+      allow read, write: if true;
+    }
+
+    match /transactions/{transactionId} {
+      allow read, write: if true;
+    }
+
+    // StockPick
+    function validUser(data) {
+      return data.keys().hasOnly(['name', 'activeStockIds', 'createdAt'])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 20
+        && data.activeStockIds is list && data.activeStockIds.size() <= 5
+        && data.activeStockIds.size() == data.activeStockIds.toSet().size()
+        && data.createdAt is timestamp;
+    }
+
+    function activeExistsFor(userId, stockId) {
+      return existsAfter(/databases/$(database)/documents/activeStocks/$(stockId))
+        && getAfter(/databases/$(database)/documents/activeStocks/$(stockId)).data.userId == userId;
+    }
+
+    function allActiveIdsExist(userId, ids) {
+      return (ids.size() < 1 || activeExistsFor(userId, ids[0]))
+        && (ids.size() < 2 || activeExistsFor(userId, ids[1]))
+        && (ids.size() < 3 || activeExistsFor(userId, ids[2]))
+        && (ids.size() < 4 || activeExistsFor(userId, ids[3]))
+        && (ids.size() < 5 || activeExistsFor(userId, ids[4]));
+    }
+
+    function removedActiveIdsAreDeleted(oldIds, newIds) {
+      return (oldIds.size() < 1 || newIds.hasAny([oldIds[0]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[0])))
+        && (oldIds.size() < 2 || newIds.hasAny([oldIds[1]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[1])))
+        && (oldIds.size() < 3 || newIds.hasAny([oldIds[2]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[2])))
+        && (oldIds.size() < 4 || newIds.hasAny([oldIds[3]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[3])))
+        && (oldIds.size() < 5 || newIds.hasAny([oldIds[4]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[4])));
+    }
+
+    function validActive(data) {
+      return data.keys().hasOnly(['userId', 'symbol', 'name', 'currency', 'buyPrice', 'buyPriceAsOf', 'addedAt'])
+        && data.userId is string && data.symbol is string && data.name is string
+        && data.symbol.matches('^[A-Z0-9.-]{1,20}$')
+        && (data.currency == 'USD' || data.currency == 'KRW')
+        && data.buyPrice is number && data.buyPrice > 0
+        && data.buyPriceAsOf is timestamp && data.addedAt == request.time;
+    }
+
     match /users/{userId} {
       allow read: if true;
-      allow create, delete: if false; // Only admin can create users
-      allow update: if 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeStockIds']) &&
-        request.resource.data.activeStockIds.size() <= 5 &&
-        // Ensure no duplicates in the array (approximate validation, strictly handled by unique activeStocks ID logic)
-        true; 
+      allow create: if validUser(request.resource.data)
+        && request.resource.data.activeStockIds.size() == 0
+        && request.resource.data.createdAt == request.time;
+      allow update: if validUser(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeStockIds'])
+        && allActiveIdsExist(userId, request.resource.data.activeStockIds)
+        && removedActiveIdsAreDeleted(resource.data.activeStockIds, request.resource.data.activeStockIds);
+      allow delete: if false;
     }
 
     match /activeStocks/{stockId} {
       allow read: if true;
-      allow create: if 
-        request.resource.data.keys().hasAll(['userId', 'symbol', 'name', 'currency', 'buyPrice', 'buyPriceAsOf', 'addedAt']) &&
-        request.resource.data.buyPrice > 0 &&
-        (request.resource.data.currency == 'USD' || request.resource.data.currency == 'KRW') &&
-        request.resource.data.addedAt == request.time &&
-        exists(/databases/$(database)/documents/users/$(request.resource.data.userId)) &&
-        stockId == request.resource.data.userId + '__' + request.resource.data.symbol;
-      allow update: if false; // Cannot edit after creation
-      allow delete: if true; 
+      allow create: if validActive(request.resource.data)
+        && stockId == request.resource.data.userId + '__' + request.resource.data.symbol
+        && existsAfter(/databases/$(database)/documents/users/$(request.resource.data.userId))
+        && getAfter(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.activeStockIds.hasAny([stockId]);
+      allow update: if false;
+      allow delete: if existsAfter(/databases/$(database)/documents/users/$(resource.data.userId))
+        && !getAfter(/databases/$(database)/documents/users/$(resource.data.userId)).data.activeStockIds.hasAny([stockId]);
     }
 
     match /stockHistory/{historyId} {
       allow read: if true;
-      allow create: if
-        request.resource.data.sellPrice > 0 &&
-        request.resource.data.closedAt == request.time;
+      allow create: if request.resource.data.keys().hasOnly([
+          'userId', 'symbol', 'name', 'currency', 'buyPrice', 'buyPriceAsOf', 'addedAt',
+          'sourceActiveStockId', 'sellPrice', 'sellPriceAsOf', 'closedAt'
+        ])
+        && request.resource.data.sellPrice is number && request.resource.data.sellPrice > 0
+        && request.resource.data.sellPriceAsOf is timestamp
+        && request.resource.data.closedAt == request.time
+        && exists(/databases/$(database)/documents/activeStocks/$(request.resource.data.sourceActiveStockId))
+        && !existsAfter(/databases/$(database)/documents/activeStocks/$(request.resource.data.sourceActiveStockId))
+        && request.resource.data.userId == get(/databases/$(database)/documents/activeStocks/$(request.resource.data.sourceActiveStockId)).data.userId
+        && request.resource.data.symbol == get(/databases/$(database)/documents/activeStocks/$(request.resource.data.sourceActiveStockId)).data.symbol
+        && request.resource.data.buyPrice == get(/databases/$(database)/documents/activeStocks/$(request.resource.data.sourceActiveStockId)).data.buyPrice
+        && !getAfter(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.activeStockIds.hasAny([request.resource.data.sourceActiveStockId]);
       allow update, delete: if false;
     }
   }

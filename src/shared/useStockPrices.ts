@@ -5,7 +5,7 @@ import type { StockQuote } from '../stock/model';
 export function useStockPrices(symbols: string[]) {
   const [quotes, setQuotes] = useState<Record<string, StockQuote>>({});
   const [error, setError] = useState<Error | null>(null);
-  const loading = false;
+  const [loading, setLoading] = useState(false);
   
   // Deduplicate and filter out empty
   const uniqueSymbols = Array.from(new Set(symbols)).filter(Boolean);
@@ -23,6 +23,7 @@ export function useStockPrices(symbols: string[]) {
       
       try {
         isFetchingRef.current = true;
+        setLoading(true);
         const newQuotes = await fetchBatchQuotes(uniqueSymbols, false);
         if (!isMounted) return;
         
@@ -38,6 +39,7 @@ export function useStockPrices(symbols: string[]) {
         if (isMounted) setError(err as Error);
       } finally {
         isFetchingRef.current = false;
+        if (isMounted) setLoading(false);
       }
     };
 

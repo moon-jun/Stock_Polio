@@ -1,24 +1,15 @@
 import { doc, runTransaction, serverTimestamp, Timestamp, collection } from "firebase/firestore";
 import { db } from "../shared/firebase";
 import type { ActiveStock, StockHistory, User } from "./model";
+import { fetchBatchQuotes } from "../shared/marketApi";
 
 
-export async function addStock(userId: string, symbol: string) {
+export async function addStock(userId: string, symbol: string, localizedName?: string) {
   // 1. Fetch fresh price outside transaction
-  const response = await fetch(`${import.meta.env.VITE_WORKER_API_URL || ''}/api/quotes?fresh=true`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ symbols: [symbol] })
-  });
-  
-  if (!response.ok) throw new Error("API_ERROR");
-  const data = await response.json();
-  if (data.errors && data.errors.length > 0) throw new Error("INVALID_QUOTE");
-  
-  const quote = data.quotes[0];
+  const quote = (await fetchBatchQuotes([symbol], true))[0];
   if (!quote || quote.price <= 0) throw new Error("INVALID_QUOTE");
 
-  const activeStockId = `${userId}__${encodeURIComponent(symbol)}`;
+  const activeStockId = `${userId}__${symbol}`;
   const userRef = doc(db, "users", userId);
   const activeStockRef = doc(db, "activeStocks", activeStockId);
 
@@ -36,7 +27,7 @@ export async function addStock(userId: string, symbol: string) {
     const newActiveStock: ActiveStock = {
       userId,
       symbol: quote.symbol,
-      name: quote.name,
+      name: localizedName && /[가-힣]/.test(localizedName) ? localizedName : quote.name,
       currency: quote.currency,
       buyPrice: quote.price,
       buyPriceAsOf: Timestamp.fromDate(new Date(quote.asOf)),
@@ -52,17 +43,8 @@ export async function addStock(userId: string, symbol: string) {
 }
 
 export async function closeStock(userId: string, symbol: string) {
-  const activeStockId = `${userId}__${encodeURIComponent(symbol)}`;
-  
-  const response = await fetch(`${import.meta.env.VITE_WORKER_API_URL || ''}/api/quotes?fresh=true`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ symbols: [symbol] })
-  });
-  
-  if (!response.ok) throw new Error("API_ERROR");
-  const data = await response.json();
-  const quote = data.quotes?.[0];
+  const activeStockId = `${userId}__${symbol}`;
+  const quote = (await fetchBatchQuotes([symbol], true))[0];
   if (!quote || quote.price <= 0) throw new Error("INVALID_QUOTE");
 
   const historyRef = doc(collection(db, "stockHistory"));

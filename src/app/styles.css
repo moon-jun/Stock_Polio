@@ -1,5 +1,9 @@
+@import "pretendard/dist/web/variable/pretendardvariable.css";
+
 :root {
-  --color-primary: #3182f6; /* 토스 블루 */
+  --color-primary: #3182f6;
+  --color-primary-dark: #1b64da;
+  --color-primary-soft: #e8f3ff;
   --color-success: #f04452; /* 한국 금융 UI 상승: 빨강 */
   --color-danger: #3182f6; /* 한국 금융 UI 하락: 파랑 (토스 블루 재사용) */
   --color-text-primary: #191f28;
@@ -22,8 +26,8 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--color-bg-primary);
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  background: linear-gradient(180deg, #e8f3ff 0, var(--color-bg-primary) 360px);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
@@ -33,12 +37,15 @@ body {
   margin: 0 auto;
   min-height: 100vh;
   background-color: var(--color-bg-surface);
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  box-shadow: 0 12px 40px rgba(49, 130, 246, 0.12);
 }
 
 .auth-screen {
   padding: var(--spacing-xl) var(--spacing-md);
   text-align: center;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: linear-gradient(160deg, #fff 25%, var(--color-primary-soft));
 }
 
 .user-grid {
@@ -57,12 +64,14 @@ body {
   font-weight: 600;
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(49, 130, 246, 0.08);
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
 }
 
 .user-btn:hover {
-  background: var(--color-bg-primary);
+  background: var(--color-primary-soft);
   border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 /* App Header */
@@ -71,23 +80,29 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
+  color: white;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border-bottom: 0;
   position: sticky;
   top: 0;
-  background: var(--color-bg-surface);
+  box-shadow: 0 6px 18px rgba(49, 130, 246, 0.2);
   z-index: 10;
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: 20px;
+  max-width: 65%;
+  font-size: 18px;
   font-weight: 700;
+  line-height: 1.25;
 }
 
 .logout-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.18);
+  border: 0;
+  border-radius: 999px;
+  color: white;
   font-size: 14px;
   cursor: pointer;
 }
@@ -96,6 +111,7 @@ body {
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--color-border);
+  background: rgba(255,255,255,0.94);
 }
 
 .tab-btn {
@@ -111,8 +127,8 @@ body {
 }
 
 .tab-btn.active {
-  color: var(--color-text-primary);
-  border-bottom-color: var(--color-text-primary);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Stock Card */
@@ -121,8 +137,42 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
+  margin: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid #edf1f5;
+  border-radius: var(--radius-md);
+  background: linear-gradient(145deg, #fff, #f7faff);
+  box-shadow: 0 5px 16px rgba(25,31,40,0.06);
 }
+
+.friend-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.friend-tabs::-webkit-scrollbar { display: none; }
+
+.friend-tabs button {
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.friend-tabs button.active {
+  color: white;
+  background: var(--color-primary);
+  box-shadow: 0 5px 12px rgba(49, 130, 246, 0.24);
+}
+
+.empty-message { padding: var(--spacing-md); color: var(--color-text-secondary); }
 
 .stock-info h3 {
   margin: 0 0 var(--spacing-xs) 0;
@@ -154,6 +204,14 @@ body {
 .price-down { color: var(--color-danger); }
 .price-neutral { color: var(--color-text-secondary); }
 
+.price-warning {
+  margin: 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: #8a4b08;
+  background: #fff4e5;
+  font-size: 13px;
+}
+
 /* Buttons */
 .btn-primary {
   width: 100%;
@@ -166,7 +224,12 @@ body {
   font-weight: 600;
   cursor: pointer;
   margin-top: var(--spacing-lg);
+  box-shadow: 0 7px 16px rgba(49, 130, 246, 0.25);
+  transition: transform 0.15s, background 0.15s;
 }
+
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
 /* Modals */
 .modal-overlay {
@@ -190,6 +253,14 @@ body {
   box-sizing: border-box;
 }
 
+.login-modal .auth-screen {
+  min-height: 0;
+  padding: 0;
+  background: none;
+}
+
+.login-modal .auth-screen h1 { font-size: 22px; }
+
 .search-input {
   width: 100%;
   padding: var(--spacing-sm);
@@ -199,6 +270,33 @@ body {
   margin-bottom: var(--spacing-md);
   box-sizing: border-box;
 }
+
+.search-hint {
+  margin: calc(var(--spacing-sm) * -1) 0 var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.search-results {
+  margin: calc(var(--spacing-sm) * -1) 0 var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.search-results button {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+}
+
+.search-results button:last-child { border-bottom: 0; }
+.search-results span { color: var(--color-text-secondary); }
 
 .error-text {
   color: var(--color-danger);

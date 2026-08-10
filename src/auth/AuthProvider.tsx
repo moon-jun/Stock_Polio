@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '../shared/firebase';
 
 interface AuthContextType {
   userId: string | null;
   name: string | null;
-  login: (id: string, name: string) => void;
+  login: (id: string, name: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -24,7 +26,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, []);
 
-  const login = (id: string, n: string) => {
+  const login = async (id: string, n: string) => {
+    const userRef = doc(db, 'users', id);
+    if (!(await getDoc(userRef)).exists()) {
+      await setDoc(userRef, { name: n, activeStockIds: [], createdAt: serverTimestamp() });
+    }
     localStorage.setItem('selectedUserId', id);
     localStorage.setItem('selectedUserName', n);
     setUserId(id);

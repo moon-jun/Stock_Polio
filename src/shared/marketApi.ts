@@ -2,10 +2,13 @@ import type { StockQuote } from '../stock/model';
 
 const WORKER_URL = import.meta.env.VITE_WORKER_API_URL || 'http://localhost:8787';
 
-export async function searchStocks(query: string) {
+export type StockSearchResult = Pick<StockQuote, 'symbol' | 'name' | 'currency'>;
+
+export async function searchStocks(query: string): Promise<StockSearchResult[]> {
   const res = await fetch(`${WORKER_URL}/api/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error("SEARCH_FAILED");
-  return res.json();
+  const data = await res.json();
+  return data.results || [];
 }
 
 export async function fetchBatchQuotes(symbols: string[], fresh: boolean = false): Promise<StockQuote[]> {
