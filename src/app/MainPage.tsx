@@ -11,6 +11,8 @@ import { useStockPrices } from '../shared/useStockPrices';
 import './styles.css';
 import { calculateReturnRate } from '../stock/logic';
 
+const FRIEND_TAB_ORDER = ['jaeyoung', 'hyunsik', 'haeuk', 'byeonghun', 'jaehyung', 'taesu', 'junhyun'];
+
 export const MainPage: React.FC = () => {
   const { userId, name, logout } = useAuth();
   
@@ -104,7 +106,7 @@ export const MainPage: React.FC = () => {
   };
 
   const renderFriendsStocks = () => {
-    const friendIds = FRIENDS.filter(user => user.id !== userId).map(user => user.id);
+    const friendIds = FRIEND_TAB_ORDER.filter(friendId => friendId !== userId);
     const activeFriendId = selectedFriendId && friendIds.includes(selectedFriendId) ? selectedFriendId : friendIds[0];
     const friendStocks = activeStocks.filter(stock => stock.userId === activeFriendId);
     return (
