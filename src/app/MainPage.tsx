@@ -19,7 +19,7 @@ export const MainPage: React.FC = () => {
   const [tab, setTab] = useState<'ranking'|'my'|'friends'|'history'>('ranking');
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [loginPurpose, setLoginPurpose] = useState<'login' | 'add' | null>(null);
   const [selectedStockToClose, setSelectedStockToClose] = useState<ActiveStock | null>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const MainPage: React.FC = () => {
 
   const startAddingStock = () => {
     if (userId) setIsAddModalOpen(true);
-    else setIsLoginOpen(true);
+    else setLoginPurpose('add');
   };
 
   const stockRankings = activeStocks.flatMap(stock => {
@@ -144,7 +144,9 @@ export const MainPage: React.FC = () => {
         <h1>워렌 버핏의 어린 시절 투자일기</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '14px', fontWeight: 600 }}>{name || '둘러보는 중'}</span>
-          {userId && <button className="logout-btn" onClick={logout}>변경</button>}
+          {userId
+            ? <button className="logout-btn" onClick={logout}>변경</button>
+            : <button className="logout-btn" onClick={() => setLoginPurpose('login')}>로그인</button>}
         </div>
       </header>
       
@@ -170,12 +172,12 @@ export const MainPage: React.FC = () => {
       </main>
 
       {isAddModalOpen && <AddStockModal onClose={() => setIsAddModalOpen(false)} />}
-      {isLoginOpen && (
-        <div className="modal-overlay" onClick={() => setIsLoginOpen(false)}>
+      {loginPurpose && (
+        <div className="modal-overlay" onClick={() => setLoginPurpose(null)}>
           <div className="modal-content login-modal" onClick={event => event.stopPropagation()}>
             <AuthScreen onSelected={() => {
-              setIsLoginOpen(false);
-              setIsAddModalOpen(true);
+              if (loginPurpose === 'add') setIsAddModalOpen(true);
+              setLoginPurpose(null);
             }} />
           </div>
         </div>
