@@ -3,6 +3,7 @@ main = 'src/index.ts'
 compatibility_date = '2024-03-20'
 
 [vars]
+# Production GitHub Pages origin
 ALLOWED_ORIGINS = 'https://moon-jun.github.io'
 
 [[ratelimits]]
