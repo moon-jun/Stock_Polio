@@ -81,18 +81,18 @@ export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
     const response = await yahooFetch(`https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=20&newsCount=0&lang=ko-KR&region=KR`);
     if (!response.ok) return [];
     const data = await response.json() as { quotes?: Array<Record<string, unknown>> };
-    const results = (data.quotes || [])
+    const candidates = (data.quotes || [])
       .map(item => ({
         symbol: String(item.symbol || "").toUpperCase(),
         name: String(item.shortname || item.longname || item.symbol || ""),
-        currency: String(item.currency || ""),
       }))
-      .filter(item => supportedSymbol(item.symbol) && supportedCurrency(item.currency))
+      .filter(item => supportedSymbol(item.symbol))
       .slice(0, 10);
-    return Promise.all(results.map(async item => ({
-      ...item,
-      name: await fetchKoreanName(item.symbol) || item.name,
-    })));
+    const results = await Promise.all(candidates.map(async item => {
+      const quote = await fetchQuote(item.symbol);
+      return quote ? { symbol: item.symbol, name: item.name || quote.name, currency: quote.currency } : null;
+    }));
+    return results.filter((item): item is StockSearchResult => item !== null);
   } catch {
     return [];
   }
