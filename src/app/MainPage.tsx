@@ -9,9 +9,10 @@ import { AddStockModal } from '../stock/ui/AddStockModal';
 import { CloseStockConfirm } from '../stock/ui/CloseStockConfirm';
 import { useStockPrices } from '../shared/useStockPrices';
 import './styles.css';
-import { calculateReturnRate } from '../stock/logic';
+import { calculateReturnRate, paginate } from '../stock/logic';
 
 const FRIEND_TAB_ORDER = ['jaeyoung', 'hyunsik', 'haeuk', 'byeonghun', 'jaehyung', 'taesu', 'junhyun'];
+const RANKING_PAGE_SIZE = 10;
 
 export const MainPage: React.FC = () => {
   const { userId, name, logout } = useAuth();
@@ -19,6 +20,7 @@ export const MainPage: React.FC = () => {
   const [activeStocks, setActiveStocks] = useState<ActiveStock[]>([]);
   const [history, setHistory] = useState<StockHistory[]>([]);
   const [tab, setTab] = useState<'ranking'|'my'|'friends'|'history'>('ranking');
+  const [rankingPage, setRankingPage] = useState(0);
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loginPurpose, setLoginPurpose] = useState<'login' | 'add' | null>(null);
@@ -62,14 +64,15 @@ export const MainPage: React.FC = () => {
       if (b.returnRate !== a.returnRate) return b.returnRate - a.returnRate;
       return a.stock.addedAt.toMillis() - b.stock.addedAt.toMillis();
     });
+  const rankingPagination = paginate(stockRankings, rankingPage, RANKING_PAGE_SIZE);
 
   const renderRanking = () => (
     <div>
       <h2 style={{ padding: '16px 16px 0' }}>진행 중인 랭킹</h2>
-      {stockRankings.map(({ stock, returnRate }, i) => (
+      {rankingPagination.items.map(({ stock, returnRate }, i) => (
         <div key={stock.userId + stock.symbol} style={{ padding: '16px', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ margin: '0 0 4px' }}>{i + 1}위 · {quotes[stock.symbol]?.name || stock.name}</h3>
+            <h3 style={{ margin: '0 0 4px' }}>{rankingPagination.currentPage * RANKING_PAGE_SIZE + i + 1}위 · {quotes[stock.symbol]?.name || stock.name}</h3>
             <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-secondary)' }}>
               {stock.symbol} · {ownerName(stock.userId)}의 추천
             </p>
@@ -82,6 +85,23 @@ export const MainPage: React.FC = () => {
         </div>
       ))}
       {stockRankings.length === 0 && <p style={{ padding: '16px', color: 'var(--color-text-secondary)' }}>아직 진행 중인 추천이 없습니다.</p>}
+      {rankingPagination.totalPages > 1 && (
+        <nav className="pagination" aria-label="랭킹 페이지">
+          <button
+            onClick={() => setRankingPage(rankingPagination.currentPage - 1)}
+            disabled={rankingPagination.currentPage === 0}
+          >
+            이전
+          </button>
+          <span>{rankingPagination.currentPage + 1} / {rankingPagination.totalPages}</span>
+          <button
+            onClick={() => setRankingPage(rankingPagination.currentPage + 1)}
+            disabled={rankingPagination.currentPage === rankingPagination.totalPages - 1}
+          >
+            다음
+          </button>
+        </nav>
+      )}
     </div>
   );
 

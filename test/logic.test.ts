@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateReturnRate } from '../src/stock/logic';
+import { calculateReturnRate, paginate } from '../src/stock/logic';
 import { normalizeSymbol, isValidSymbol } from '../worker/src/validation';
 
 describe('calculateReturnRate', () => {
@@ -12,6 +12,18 @@ describe('calculateReturnRate', () => {
   it('0 이하 가격을 거부한다', () => {
     expect(() => calculateReturnRate(0, 100)).toThrow('INVALID_PRICE');
     expect(() => calculateReturnRate(100, -10)).toThrow('INVALID_PRICE');
+  });
+});
+
+describe('paginate', () => {
+  it('전체 순서를 유지하며 페이지 범위를 보정한다', () => {
+    const values = Array.from({ length: 25 }, (_, index) => index + 1);
+    expect(paginate(values, 1, 10)).toEqual({
+      items: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      currentPage: 1,
+      totalPages: 3,
+    });
+    expect(paginate(values, 99, 10).currentPage).toBe(2);
   });
 });
 

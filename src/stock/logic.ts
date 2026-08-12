@@ -4,3 +4,10 @@ export function calculateReturnRate(buyPrice: number, comparisonPrice: number) {
   }
   return ((comparisonPrice - buyPrice) / buyPrice) * 100;
 }
+
+export function paginate<T>(items: T[], page: number, pageSize: number) {
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const currentPage = Math.min(Math.max(0, page), totalPages - 1);
+  const start = currentPage * pageSize;
+  return { items: items.slice(start, start + pageSize), currentPage, totalPages };
+}
