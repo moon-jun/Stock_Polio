@@ -2,7 +2,7 @@ export type StockQuote = {
   symbol: string;
   name: string;
   price: number;
-  currency: "USD" | "KRW";
+  currency: string;
   asOf: string;
   marketState: "REGULAR" | "PRE" | "POST" | "CLOSED" | "UNKNOWN";
 };
@@ -10,7 +10,11 @@ export type StockQuote = {
 export type StockSearchResult = Pick<StockQuote, "symbol" | "name" | "currency">;
 
 function supportedSymbol(symbol: string) {
-  return /^[A-Z][A-Z0-9.-]*$/.test(symbol) || /^\d{6}\.(KS|KQ)$/.test(symbol);
+  return /^[A-Z0-9^=.-]{1,40}$/.test(symbol);
+}
+
+function supportedCurrency(currency: unknown): currency is string {
+  return typeof currency === "string" && /^[A-Za-z]{2,5}$/.test(currency);
 }
 
 export function mapYahooQuote(data: unknown, fallbackSymbol: string): StockQuote | null {
@@ -19,10 +23,8 @@ export function mapYahooQuote(data: unknown, fallbackSymbol: string): StockQuote
   const price = Number(meta?.regularMarketPrice);
   const time = Number(meta?.regularMarketTime);
   const currency = meta?.currency;
-  const quoteType = meta?.instrumentType;
   if (!meta || !Number.isFinite(price) || price <= 0 || !Number.isFinite(time)) return null;
-  if (quoteType !== "EQUITY") return null;
-  if (currency !== "USD" && currency !== "KRW") return null;
+  if (!supportedCurrency(currency)) return null;
   const symbol = String(meta.symbol || fallbackSymbol).toUpperCase();
   if (!supportedSymbol(symbol)) return null;
 
@@ -80,13 +82,12 @@ export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
     if (!response.ok) return [];
     const data = await response.json() as { quotes?: Array<Record<string, unknown>> };
     const results = (data.quotes || [])
-      .filter(item => item.quoteType === "EQUITY")
       .map(item => ({
         symbol: String(item.symbol || "").toUpperCase(),
         name: String(item.shortname || item.longname || item.symbol || ""),
-        currency: String(item.currency) === "KRW" ? "KRW" as const : "USD" as const,
+        currency: String(item.currency || ""),
       }))
-      .filter(item => supportedSymbol(item.symbol))
+      .filter(item => supportedSymbol(item.symbol) && supportedCurrency(item.currency))
       .slice(0, 10);
     return Promise.all(results.map(async item => ({
       ...item,

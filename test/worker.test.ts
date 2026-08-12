@@ -16,12 +16,16 @@ describe('Yahoo quote mapping', () => {
     });
   });
 
-  it('가격 누락과 ETF를 거부한다', () => {
+  it('가격 누락을 거부한다', () => {
     expect(mapYahooQuote(response({ regularMarketPrice: undefined }), '005930.KS')).toBeNull();
-    expect(mapYahooQuote(response({ instrumentType: 'ETF' }), '069500.KS')).toBeNull();
   });
 
-  it('USD 통화를 보존한다', () => {
-    expect(mapYahooQuote(response({ symbol: 'AAPL', currency: 'USD' }), 'AAPL')?.currency).toBe('USD');
+  it.each(['ETF', 'MUTUALFUND', 'OPTION'])('%s 상품을 허용한다', instrumentType => {
+    expect(mapYahooQuote(response({ symbol: 'SOXL', currency: 'USD', instrumentType }), 'SOXL'))
+      .toMatchObject({ symbol: 'SOXL', currency: 'USD' });
+  });
+
+  it('해외 거래소 통화를 보존한다', () => {
+    expect(mapYahooQuote(response({ symbol: 'AIR.PA', currency: 'EUR' }), 'AIR.PA')?.currency).toBe('EUR');
   });
 });

@@ -1,6 +1,6 @@
 import type { Timestamp } from "firebase/firestore";
 
-export type Currency = "USD" | "KRW";
+export type Currency = string;
 
 export type User = { 
   name: string; 

@@ -51,8 +51,8 @@ service cloud.firestore {
     function validActive(data) {
       return data.keys().hasOnly(['userId', 'symbol', 'name', 'currency', 'buyPrice', 'buyPriceAsOf', 'addedAt'])
         && data.userId is string && data.symbol is string && data.name is string
-        && data.symbol.matches('^[A-Z0-9.-]{1,20}$')
-        && (data.currency == 'USD' || data.currency == 'KRW')
+        && data.symbol.matches('^[A-Z0-9^=.-]{1,40}$')
+        && data.currency is string && data.currency.matches('^[A-Za-z]{2,5}$')
         && data.buyPrice is number && data.buyPrice > 0
         && data.buyPriceAsOf is timestamp && data.addedAt == request.time;
     }

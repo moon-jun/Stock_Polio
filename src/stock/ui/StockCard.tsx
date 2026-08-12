@@ -25,10 +25,11 @@ export const StockCard: React.FC<Props> = ({ stock, ownerName, quote, isHistory,
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'KRW') return `${new Intl.NumberFormat('ko-KR').format(price)}원`;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
-    }).format(price);
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(price);
+    } catch {
+      return `${new Intl.NumberFormat('en-US').format(price)} ${currency}`;
+    }
   };
 
   const rateClass = returnRate > 0 ? 'price-up' : returnRate < 0 ? 'price-down' : 'price-neutral';
