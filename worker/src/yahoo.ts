@@ -78,6 +78,8 @@ export async function fetchQuote(symbol: string): Promise<StockQuote | null> {
 export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
   if (/[가-힣]/.test(query)) return searchKoreanStocks(query);
   try {
+    const exactSymbol = query.toUpperCase().trim();
+    const exactQuote = supportedSymbol(exactSymbol) ? await fetchQuote(exactSymbol) : null;
     const response = await yahooFetch(`https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=20&newsCount=0&lang=ko-KR&region=KR`);
     if (!response.ok) return [];
     const data = await response.json() as { quotes?: Array<Record<string, unknown>> };
@@ -92,7 +94,12 @@ export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
       const quote = await fetchQuote(item.symbol);
       return quote ? { symbol: item.symbol, name: item.name || quote.name, currency: quote.currency } : null;
     }));
-    return results.filter((item): item is StockSearchResult => item !== null);
+    const verified = results.filter((item): item is StockSearchResult => item !== null);
+    if (!exactQuote) return verified;
+    return [
+      { symbol: exactQuote.symbol, name: exactQuote.name, currency: exactQuote.currency },
+      ...verified.filter(item => item.symbol !== exactQuote.symbol),
+    ].slice(0, 10);
   } catch {
     return [];
   }
