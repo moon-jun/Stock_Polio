@@ -25,19 +25,24 @@ export const MainPage: React.FC = () => {
   const [selectedStockToClose, setSelectedStockToClose] = useState<ActiveStock | null>(null);
 
   useEffect(() => {
-    const unsubs = [
-      onSnapshot(collection(db, 'activeStocks'), (snap) => {
-        const data = snap.docs.map(doc => doc.data() as ActiveStock);
-        setActiveStocks(data);
-      }),
-      onSnapshot(query(collection(db, 'stockHistory'), orderBy('closedAt', 'desc')), (snap) => {
-        const data = snap.docs.map(doc => doc.data() as StockHistory);
-        setHistory(data);
-      })
-    ];
-
-    return () => unsubs.forEach(unsub => unsub());
+    return onSnapshot(collection(db, 'activeStocks'), (snap) => {
+      setActiveStocks(current => {
+        const stocks = new Map(current.map(stock => [`${stock.userId}__${stock.symbol}`, stock]));
+        snap.docChanges().forEach(change => {
+          if (change.type === 'removed') stocks.delete(change.doc.id);
+          else stocks.set(change.doc.id, change.doc.data() as ActiveStock);
+        });
+        return [...stocks.values()];
+      });
+    });
   }, []);
+
+  useEffect(() => {
+    if (tab !== 'history') return;
+    return onSnapshot(query(collection(db, 'stockHistory'), orderBy('closedAt', 'desc')), (snap) => {
+      setHistory(snap.docs.map(doc => doc.data() as StockHistory));
+    });
+  }, [tab]);
 
   const activeSymbols = Array.from(new Set(activeStocks.map(s => s.symbol)));
   const { quotes, error: priceError } = useStockPrices(activeSymbols);

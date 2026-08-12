@@ -2,17 +2,34 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchBatchQuotes } from './marketApi';
 import type { StockQuote } from '../stock/model';
 
+const QUOTE_CACHE_KEY = 'stockQuoteCacheV1';
+
+function loadCachedQuotes(): Record<string, StockQuote> {
+  try {
+    return JSON.parse(localStorage.getItem(QUOTE_CACHE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
 export function useStockPrices(symbols: string[]) {
-  const [quotes, setQuotes] = useState<Record<string, StockQuote>>({});
+  const [quotes, setQuotes] = useState<Record<string, StockQuote>>(loadCachedQuotes);
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // Deduplicate and filter out empty
-  const uniqueSymbols = Array.from(new Set(symbols)).filter(Boolean);
-  const symbolsKey = uniqueSymbols.sort().join(',');
+  const symbolsKey = Array.from(new Set(symbols)).filter(Boolean).sort().join(',');
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(QUOTE_CACHE_KEY, JSON.stringify(quotes));
+    } catch {
+      // Cache is optional when storage is unavailable.
+    }
+  }, [quotes]);
+
+  useEffect(() => {
+    const uniqueSymbols = symbolsKey ? symbolsKey.split(',') : [];
     if (uniqueSymbols.length === 0) return;
     
     let isMounted = true;

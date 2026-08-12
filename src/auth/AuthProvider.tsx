@@ -17,8 +17,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedId = localStorage.getItem('selectedUserId');
-    const storedName = localStorage.getItem('selectedUserName');
+    localStorage.removeItem('selectedUserId');
+    localStorage.removeItem('selectedUserName');
+    const storedId = sessionStorage.getItem('selectedUserId');
+    const storedName = sessionStorage.getItem('selectedUserName');
     if (storedId && storedName) {
       setUserId(storedId);
       setName(storedName);
@@ -31,15 +33,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!(await getDoc(userRef)).exists()) {
       await setDoc(userRef, { name: n, activeStockIds: [], createdAt: serverTimestamp() });
     }
-    localStorage.setItem('selectedUserId', id);
-    localStorage.setItem('selectedUserName', n);
+    sessionStorage.setItem('selectedUserId', id);
+    sessionStorage.setItem('selectedUserName', n);
     setUserId(id);
     setName(n);
   };
 
   const logout = () => {
-    localStorage.removeItem('selectedUserId');
-    localStorage.removeItem('selectedUserName');
+    sessionStorage.removeItem('selectedUserId');
+    sessionStorage.removeItem('selectedUserName');
     setUserId(null);
     setName(null);
   };
