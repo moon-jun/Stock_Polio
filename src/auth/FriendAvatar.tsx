@@ -10,7 +10,18 @@ interface Props {
 export const FriendAvatar: React.FC<Props> = ({ name, src, className = '', objectPosition }) => {
   const classes = ['friend-avatar', className].filter(Boolean).join(' ');
   if (src) {
-    return <img className={classes} src={src} alt="" aria-hidden="true" title={`${name} 픽`} style={{ objectPosition }} />;
+    return (
+      <span className={classes} aria-hidden="true" title={`${name} 픽`}>
+        <img
+          src={src}
+          alt=""
+          style={{
+            objectPosition,
+            transform: name === '현식' ? 'translateX(3px) scale(1.12)' : undefined,
+          }}
+        />
+      </span>
+    );
   }
   return <span className={`${classes} friend-avatar--fallback`} aria-hidden="true">{name.slice(0, 1)}</span>;
 };
