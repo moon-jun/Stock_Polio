@@ -13,9 +13,9 @@ export const FRIENDS = [
   { id: 'jaehyung', name: '재형', avatar: jaehyungAvatar, avatarPosition: 'center 53%', avatarTransform: 'translateX(4%)' },
   { id: 'junhyun', name: '준현', avatar: junhyunAvatar, avatarPosition: 'center bottom' },
   { id: 'haeuk', name: '해욱', avatar: haeukAvatar, avatarPosition: 'center 32%', avatarTransform: 'translateX(-3%)' },
-  { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar, avatarPosition: 'center 99%', avatarTransform: 'translateX(-3%)' },
+  { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar, avatarPosition: 'center 50%' },
   { id: 'taesu', name: '태수', avatar: taesuAvatar, avatarPosition: 'center 32%' },
-  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center bottom', avatarTransform: 'translateX(7%)' },
+  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center 50%' },
   { id: 'jaeyoung', name: '재영', avatar: jaeyoungAvatar, avatarPosition: 'center bottom' },
 ];
 
