@@ -1,15 +1,22 @@
 import React from 'react';
 import { useAuth } from './AuthProvider';
 import '../app/styles.css';
+import jaeyoungAvatar from '../../picture/재영.png';
+import hyunsikAvatar from '../../picture/현식.png';
+import haeukAvatar from '../../picture/해욱.png';
+import byeonghunAvatar from '../../picture/병훈.png';
+import jaehyungAvatar from '../../picture/재형.png';
+import taesuAvatar from '../../picture/태수.png';
+import junhyunAvatar from '../../picture/준현.png';
 
 export const FRIENDS = [
-  { id: 'jaehyung', name: '재형' },
-  { id: 'junhyun', name: '준현' },
-  { id: 'haeuk', name: '해욱' },
-  { id: 'byeonghun', name: '병훈' },
-  { id: 'taesu', name: '태수' },
-  { id: 'hyunsik', name: '현식' },
-  { id: 'jaeyoung', name: '재영' },
+  { id: 'jaehyung', name: '재형', avatar: jaehyungAvatar },
+  { id: 'junhyun', name: '준현', avatar: junhyunAvatar },
+  { id: 'haeuk', name: '해욱', avatar: haeukAvatar },
+  { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar },
+  { id: 'taesu', name: '태수', avatar: taesuAvatar },
+  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar },
+  { id: 'jaeyoung', name: '재영', avatar: jaeyoungAvatar },
 ];
 
 export const AuthScreen: React.FC<{ onSelected?: () => void }> = ({ onSelected }) => {

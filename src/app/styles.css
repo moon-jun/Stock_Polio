@@ -133,8 +133,10 @@ body {
 
 /* Stock Card */
 .stock-card {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px auto;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
   align-items: center;
   padding: var(--spacing-md);
   margin: var(--spacing-sm) var(--spacing-md);
@@ -179,6 +181,12 @@ body {
   font-size: 16px;
 }
 
+.stock-info {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  min-width: 0;
+}
+
 .stock-info p {
   margin: 0;
   font-size: 13px;
@@ -186,7 +194,10 @@ body {
 }
 
 .stock-price {
+  grid-column: 3;
+  grid-row: 1 / 3;
   text-align: right;
+  white-space: nowrap;
 }
 
 .stock-price h4 {
@@ -204,6 +215,30 @@ body {
 .price-down { color: var(--color-danger); }
 .price-neutral { color: var(--color-text-secondary); }
 
+.friend-avatar {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  background: #e9eef5;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 32px;
+  text-align: center;
+}
+
+.friend-avatar--fallback { display: block; }
+
+.stock-card > .friend-avatar {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
 .price-warning {
   margin: 0;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -216,11 +251,39 @@ body {
 .stock-card--global { border-left: 4px solid #7c5ce5; }
 
 .ranking-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px auto;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-items: center;
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
   border-left: 4px solid transparent;
+}
+
+.ranking-info {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  min-width: 0;
+}
+
+.ranking-info h3,
+.ranking-info p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ranking-avatar {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
+.ranking-return {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
 }
 
 .ranking-row--domestic { border-left-color: #3182f6; }

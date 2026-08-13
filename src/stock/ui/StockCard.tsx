@@ -1,16 +1,18 @@
 import React from 'react';
 import type { ActiveStock, StockHistory, StockQuote } from '../model';
 import { calculateReturnRate, isKoreanStock } from '../logic';
+import { FriendAvatar } from '../../auth/FriendAvatar';
 
 interface Props {
   stock: ActiveStock | StockHistory;
   ownerName: string;
+  ownerAvatar?: string;
   quote?: StockQuote;
   isHistory?: boolean;
   onClick?: () => void;
 }
 
-export const StockCard: React.FC<Props> = ({ stock, ownerName, quote, isHistory, onClick }) => {
+export const StockCard: React.FC<Props> = ({ stock, ownerName, ownerAvatar, quote, isHistory, onClick }) => {
   const currentPrice = isHistory ? (stock as StockHistory).sellPrice : quote?.price;
   const displayName = quote?.name || stock.name;
   
@@ -45,6 +47,7 @@ export const StockCard: React.FC<Props> = ({ stock, ownerName, quote, isHistory,
           {ownerName} 픽 · 등록가 {formatPrice(stock.buyPrice, stock.currency)}
         </p>
       </div>
+      <FriendAvatar name={ownerName} src={ownerAvatar} />
       <div className="stock-price">
         {currentPrice ? (
           <>
