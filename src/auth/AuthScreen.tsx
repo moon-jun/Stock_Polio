@@ -11,12 +11,12 @@ import junhyunAvatar from '../../picture/준현.png';
 
 export const FRIENDS = [
   { id: 'jaehyung', name: '재형', avatar: jaehyungAvatar },
-  { id: 'junhyun', name: '준현', avatar: junhyunAvatar, avatarPosition: 'center 60%' },
+  { id: 'junhyun', name: '준현', avatar: junhyunAvatar, avatarPosition: 'center bottom' },
   { id: 'haeuk', name: '해욱', avatar: haeukAvatar },
   { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar },
   { id: 'taesu', name: '태수', avatar: taesuAvatar },
-  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center 60%' },
-  { id: 'jaeyoung', name: '재영', avatar: jaeyoungAvatar, avatarPosition: 'center 60%' },
+  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center bottom' },
+  { id: 'jaeyoung', name: '재영', avatar: jaeyoungAvatar, avatarPosition: 'center bottom' },
 ];
 
 export const AuthScreen: React.FC<{ onSelected?: () => void }> = ({ onSelected }) => {
