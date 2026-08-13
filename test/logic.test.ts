@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateReturnRate, paginate } from '../src/stock/logic';
+import { calculateReturnRate, isKoreanStock, paginate } from '../src/stock/logic';
 import { normalizeSymbol, isValidSymbol } from '../worker/src/validation';
 
 describe('calculateReturnRate', () => {
@@ -24,6 +24,15 @@ describe('paginate', () => {
       totalPages: 3,
     });
     expect(paginate(values, 99, 10).currentPage).toBe(2);
+  });
+});
+
+describe('market classification', () => {
+  it('국내와 해외 심볼을 구분한다', () => {
+    expect(isKoreanStock('005930.KS')).toBe(true);
+    expect(isKoreanStock('035720.KQ')).toBe(true);
+    expect(isKoreanStock('AAPL')).toBe(false);
+    expect(isKoreanStock('AIR.PA')).toBe(false);
   });
 });
 

@@ -19,7 +19,7 @@ export async function addStock(userId: string, symbol: string, localizedName?: s
     if (!userDoc.exists()) throw new Error("USER_NOT_FOUND");
     
     const userData = userDoc.data() as User;
-    if (userData.activeStockIds.length >= 5) throw new Error("ACTIVE_STOCK_LIMIT");
+    if (userData.activeStockIds.length >= 10) throw new Error("ACTIVE_STOCK_LIMIT");
     
     const activeDoc = await transaction.get(activeStockRef);
     if (activeDoc.exists()) throw new Error("DUPLICATE_STOCK");

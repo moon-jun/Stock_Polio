@@ -22,22 +22,22 @@ service cloud.firestore {
     function validUser(data) {
       return data.keys().hasOnly(['name', 'activeStockIds', 'createdAt'])
         && data.name is string && data.name.size() >= 1 && data.name.size() <= 20
-        && data.activeStockIds is list && data.activeStockIds.size() <= 5
+        && data.activeStockIds is list && data.activeStockIds.size() <= 10
         && data.activeStockIds.size() == data.activeStockIds.toSet().size()
         && data.createdAt is timestamp;
     }
 
     function activeExistsFor(userId, stockId) {
-      return existsAfter(/databases/$(database)/documents/activeStocks/$(stockId))
-        && getAfter(/databases/$(database)/documents/activeStocks/$(stockId)).data.userId == userId;
+      return getAfter(/databases/$(database)/documents/activeStocks/$(stockId)).data.userId == userId;
     }
 
-    function allActiveIdsExist(userId, ids) {
-      return (ids.size() < 1 || activeExistsFor(userId, ids[0]))
-        && (ids.size() < 2 || activeExistsFor(userId, ids[1]))
-        && (ids.size() < 3 || activeExistsFor(userId, ids[2]))
-        && (ids.size() < 4 || activeExistsFor(userId, ids[3]))
-        && (ids.size() < 5 || activeExistsFor(userId, ids[4]));
+    function validActiveIdsUpdate(userId, oldIds, newIds) {
+      return (newIds.size() == oldIds.size() + 1
+          && newIds.hasAll(oldIds)
+          && activeExistsFor(userId, newIds[newIds.size() - 1]))
+        || (oldIds.size() == newIds.size() + 1
+          && oldIds.hasAll(newIds)
+          && removedActiveIdsAreDeleted(oldIds, newIds));
     }
 
     function removedActiveIdsAreDeleted(oldIds, newIds) {
@@ -45,7 +45,12 @@ service cloud.firestore {
         && (oldIds.size() < 2 || newIds.hasAny([oldIds[1]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[1])))
         && (oldIds.size() < 3 || newIds.hasAny([oldIds[2]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[2])))
         && (oldIds.size() < 4 || newIds.hasAny([oldIds[3]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[3])))
-        && (oldIds.size() < 5 || newIds.hasAny([oldIds[4]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[4])));
+        && (oldIds.size() < 5 || newIds.hasAny([oldIds[4]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[4])))
+        && (oldIds.size() < 6 || newIds.hasAny([oldIds[5]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[5])))
+        && (oldIds.size() < 7 || newIds.hasAny([oldIds[6]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[6])))
+        && (oldIds.size() < 8 || newIds.hasAny([oldIds[7]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[7])))
+        && (oldIds.size() < 9 || newIds.hasAny([oldIds[8]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[8])))
+        && (oldIds.size() < 10 || newIds.hasAny([oldIds[9]]) || !existsAfter(/databases/$(database)/documents/activeStocks/$(oldIds[9])));
     }
 
     function validActive(data) {
@@ -64,8 +69,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow update: if validUser(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeStockIds'])
-        && allActiveIdsExist(userId, request.resource.data.activeStockIds)
-        && removedActiveIdsAreDeleted(resource.data.activeStockIds, request.resource.data.activeStockIds);
+        && validActiveIdsUpdate(userId, resource.data.activeStockIds, request.resource.data.activeStockIds);
       allow delete: if false;
     }
 

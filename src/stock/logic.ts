@@ -11,3 +11,7 @@ export function paginate<T>(items: T[], page: number, pageSize: number) {
   const start = currentPage * pageSize;
   return { items: items.slice(start, start + pageSize), currentPage, totalPages };
 }
+
+export function isKoreanStock(symbol: string) {
+  return /\.(KS|KQ)$/.test(symbol);
+}

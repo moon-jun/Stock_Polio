@@ -8,6 +8,13 @@ export type StockQuote = {
 };
 
 export type StockSearchResult = Pick<StockQuote, "symbol" | "name" | "currency">;
+type NaverItem = { code?: string; name?: string; typeCode?: string };
+const KOREAN_NAME_OVERRIDES: Record<string, string> = {
+  DRAM: "라운드힐 메모리 ETF",
+  QLD: "프로셰어즈 울트라 QQQ",
+  SOXL: "디렉시온 데일리 반도체 불 3배 ETF",
+  TQQQ: "프로셰어즈 울트라프로 QQQ",
+};
 
 function supportedSymbol(symbol: string) {
   return /^[A-Z0-9^=.-]{1,40}$/.test(symbol);
@@ -48,8 +55,18 @@ async function yahooFetch(url: string): Promise<Response> {
 }
 
 async function fetchKoreanName(symbol: string): Promise<string | null> {
-  if (!/^\d{6}\.(KS|KQ)$/.test(symbol)) return null;
   try {
+    if (!/^\d{6}\.(KS|KQ)$/.test(symbol)) {
+      if (KOREAN_NAME_OVERRIDES[symbol]) return KOREAN_NAME_OVERRIDES[symbol];
+      const response = await fetch(`https://ac.stock.naver.com/ac?q=${encodeURIComponent(symbol)}&target=stock`, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) return null;
+      const data = await response.json() as { items?: NaverItem[] };
+      const match = (data.items || []).find(item => item.code?.toUpperCase() === symbol);
+      return match?.name && /[가-힣]/.test(match.name) ? match.name : null;
+    }
     const response = await fetch(`https://finance.naver.com/item/main.naver?code=${symbol.slice(0, 6)}`, {
       headers: { "User-Agent": "Mozilla/5.0" },
       signal: AbortSignal.timeout(5000),
@@ -76,7 +93,7 @@ export async function fetchQuote(symbol: string): Promise<StockQuote | null> {
 }
 
 export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
-  if (/[가-힣]/.test(query)) return searchKoreanStocks(query);
+  if (/[가-힣]/.test(query)) return searchNaverStocks(query);
   try {
     const exactSymbol = query.toUpperCase().trim();
     const exactQuote = supportedSymbol(exactSymbol) ? await fetchQuote(exactSymbol) : null;
@@ -92,7 +109,7 @@ export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
       .slice(0, 10);
     const results = await Promise.all(candidates.map(async item => {
       const quote = await fetchQuote(item.symbol);
-      return quote ? { symbol: item.symbol, name: item.name || quote.name, currency: quote.currency } : null;
+      return quote ? { symbol: item.symbol, name: quote.name, currency: quote.currency } : null;
     }));
     const verified = results.filter((item): item is StockSearchResult => item !== null);
     if (!exactQuote) return verified;
@@ -105,7 +122,7 @@ export async function searchYahoo(query: string): Promise<StockSearchResult[]> {
   }
 }
 
-async function searchKoreanStocks(query: string): Promise<StockSearchResult[]> {
+async function searchNaverStocks(query: string): Promise<StockSearchResult[]> {
   try {
     const response = await fetch(`https://ac.stock.naver.com/ac?q=${encodeURIComponent(query)}&target=stock`, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -113,15 +130,20 @@ async function searchKoreanStocks(query: string): Promise<StockSearchResult[]> {
     });
     if (!response.ok) return [];
     const data = await response.json() as {
-      items?: Array<{ code?: string; name?: string; typeCode?: string }>;
+      items?: NaverItem[];
     };
     const candidates = (data.items || [])
-      .filter(item => /^\d{6}$/.test(item.code || "") && (item.typeCode === "KOSPI" || item.typeCode === "KOSDAQ"))
+      .map(item => ({
+        ...item,
+        symbol: item.typeCode === "KOSPI" ? `${item.code}.KS`
+          : item.typeCode === "KOSDAQ" ? `${item.code}.KQ`
+          : String(item.code || "").toUpperCase(),
+      }))
+      .filter(item => supportedSymbol(item.symbol))
       .slice(0, 10);
     const verified = await Promise.all(candidates.map(async (item): Promise<StockSearchResult | null> => {
-      const symbol = `${item.code}.${item.typeCode === "KOSPI" ? "KS" : "KQ"}`;
-      const quote = await fetchQuote(symbol);
-      return quote ? { symbol, name: item.name || quote.name, currency: "KRW" as const } : null;
+      const quote = await fetchQuote(item.symbol);
+      return quote ? { symbol: item.symbol, name: item.name || quote.name, currency: quote.currency } : null;
     }));
     return verified.filter((item): item is StockSearchResult => item !== null);
   } catch {

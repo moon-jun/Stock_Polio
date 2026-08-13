@@ -30,9 +30,9 @@ export const CloseStockConfirm: React.FC<{
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h2>종목 추천 종료</h2>
+        <h2>종목 픽 종료</h2>
         <p>
-          <strong>{stock.name}</strong> ({stock.symbol}) 추천을 종료하시겠습니까?
+          <strong>{stock.name}</strong> ({stock.symbol}) 픽을 종료하시겠습니까?
         </p>
         <div style={{ padding: '16px', background: 'var(--color-bg-primary)', borderRadius: '8px', margin: '16px 0' }}>
           <p style={{ margin: '0 0 8px 0' }}>등록가: {stock.buyPrice} {stock.currency}</p>

@@ -40,7 +40,7 @@ export const AddStockModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
       await addStock(userId, query.toUpperCase().trim(), selectedName || undefined);
       onClose();
     } catch (err: any) {
-      if (err.message === 'ACTIVE_STOCK_LIMIT') setError('최대 5개까지만 등록할 수 있습니다.');
+      if (err.message === 'ACTIVE_STOCK_LIMIT') setError('최대 10개까지만 등록할 수 있습니다.');
       else if (err.message === 'DUPLICATE_STOCK') setError('이미 등록된 종목입니다.');
       else if (err.message === 'INVALID_QUOTE') setError('유효하지 않은 종목이거나 가격을 불러올 수 없습니다.');
       else setError('등록에 실패했습니다.');
@@ -52,7 +52,7 @@ export const AddStockModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h2>새 종목 추천하기</h2>
+        <h2>새 종목 픽하기</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -74,7 +74,7 @@ export const AddStockModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
           )}
           {error && <p className="error-text">{error}</p>}
           <button type="submit" className="btn-primary" disabled={loading || !query}>
-            {loading ? '등록 중...' : '추천하기'}
+            {loading ? '등록 중...' : '픽하기'}
           </button>
         </form>
       </div>

@@ -19,17 +19,21 @@ export async function searchStocks(query: string): Promise<StockSearchResult[]> 
 
 export async function fetchBatchQuotes(symbols: string[], fresh: boolean = false): Promise<StockQuote[]> {
   if (symbols.length === 0) return [];
-  const res = await fetch(`${workerUrl()}/api/quotes${fresh ? '?fresh=true' : ''}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ symbols })
-  });
-  
-  if (!res.ok) {
-    if (res.status === 429) throw new Error("RATE_LIMITED");
-    throw new Error("QUOTE_FAILED");
+  const quotes: StockQuote[] = [];
+  for (let index = 0; index < symbols.length; index += 35) {
+    const res = await fetch(`${workerUrl()}/api/quotes${fresh ? '?fresh=true' : ''}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbols: symbols.slice(index, index + 35) })
+    });
+
+    if (!res.ok) {
+      if (res.status === 429) throw new Error("RATE_LIMITED");
+      throw new Error("QUOTE_FAILED");
+    }
+
+    const data = await res.json();
+    quotes.push(...(data.quotes || []));
   }
-  
-  const data = await res.json();
-  return data.quotes || [];
+  return quotes;
 }

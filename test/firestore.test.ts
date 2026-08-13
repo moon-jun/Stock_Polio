@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { assertFails, assertSucceeds, initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
 import { doc, serverTimestamp, setDoc, writeBatch } from 'firebase/firestore';
@@ -44,5 +44,27 @@ rulesDescribe('Firestore rules', () => {
       buyPriceAsOf: new Date(), addedAt: serverTimestamp(),
     });
     await assertSucceeds(batch.commit());
+  });
+
+  it('사용자당 10개까지 허용하고 11번째를 거부한다', async () => {
+    await env.withSecurityRulesDisabled(ctx => setDoc(doc(ctx.firestore(), 'users', 'u1'), {
+      name: '친구', activeStockIds: [], createdAt: new Date(),
+    }));
+    const db = env.unauthenticatedContext().firestore();
+    const ids: string[] = [];
+    for (let index = 0; index < 10; index++) {
+      const id = `u1__S${index}`;
+      ids.push(id);
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'users', 'u1'), { activeStockIds: [...ids] });
+      batch.set(doc(db, 'activeStocks', id), {
+        userId: 'u1', symbol: `S${index}`, name: `Stock ${index}`, currency: 'USD',
+        buyPrice: 100, buyPriceAsOf: new Date(), addedAt: serverTimestamp(),
+      });
+      await assertSucceeds(batch.commit());
+    }
+    await assertFails(setDoc(doc(db, 'users', 'u1'), {
+      activeStockIds: [...ids, 'u1__S10'],
+    }, { merge: true }));
   });
 });

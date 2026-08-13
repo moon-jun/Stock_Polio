@@ -212,6 +212,32 @@ body {
   font-size: 13px;
 }
 
+.stock-card--domestic { border-left: 4px solid #3182f6; }
+.stock-card--global { border-left: 4px solid #7c5ce5; }
+
+.ranking-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  border-left: 4px solid transparent;
+}
+
+.ranking-row--domestic { border-left-color: #3182f6; }
+.ranking-row--global { border-left-color: #7c5ce5; }
+
+.market-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
+.market-badge--domestic { color: #1b64da; background: #e8f3ff; }
+.market-badge--global { color: #6541c1; background: #f0ebff; }
+
 .pagination {
   display: flex;
   align-items: center;

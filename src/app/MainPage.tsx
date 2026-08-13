@@ -9,7 +9,7 @@ import { AddStockModal } from '../stock/ui/AddStockModal';
 import { CloseStockConfirm } from '../stock/ui/CloseStockConfirm';
 import { useStockPrices } from '../shared/useStockPrices';
 import './styles.css';
-import { calculateReturnRate, paginate } from '../stock/logic';
+import { calculateReturnRate, isKoreanStock, paginate } from '../stock/logic';
 
 const FRIEND_TAB_ORDER = ['jaeyoung', 'hyunsik', 'haeuk', 'byeonghun', 'jaehyung', 'taesu', 'junhyun'];
 const RANKING_PAGE_SIZE = 10;
@@ -46,8 +46,11 @@ export const MainPage: React.FC = () => {
     });
   }, [tab]);
 
-  const activeSymbols = Array.from(new Set(activeStocks.map(s => s.symbol)));
-  const { quotes, error: priceError } = useStockPrices(activeSymbols);
+  const priceSymbols = Array.from(new Set([
+    ...activeStocks.map(stock => stock.symbol),
+    ...(tab === 'history' ? history.map(stock => stock.symbol) : []),
+  ]));
+  const { quotes, error: priceError } = useStockPrices(priceSymbols);
   const ownerName = (userId: string) => FRIENDS.find(user => user.id === userId)?.name || userId;
 
   const startAddingStock = () => {
@@ -70,11 +73,11 @@ export const MainPage: React.FC = () => {
     <div>
       <h2 style={{ padding: '16px 16px 0' }}>진행 중인 랭킹</h2>
       {rankingPagination.items.map(({ stock, returnRate }, i) => (
-        <div key={stock.userId + stock.symbol} style={{ padding: '16px', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between' }}>
+        <div className={`ranking-row ranking-row--${isKoreanStock(stock.symbol) ? 'domestic' : 'global'}`} key={stock.userId + stock.symbol}>
           <div>
             <h3 style={{ margin: '0 0 4px' }}>{rankingPagination.currentPage * RANKING_PAGE_SIZE + i + 1}위 · {quotes[stock.symbol]?.name || stock.name}</h3>
             <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-secondary)' }}>
-              {stock.symbol} · {ownerName(stock.userId)}의 추천
+              <span className={`market-badge market-badge--${isKoreanStock(stock.symbol) ? 'domestic' : 'global'}`}>{isKoreanStock(stock.symbol) ? '국내' : '해외'}</span> {stock.symbol} · {ownerName(stock.userId)} 픽
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -84,7 +87,7 @@ export const MainPage: React.FC = () => {
           </div>
         </div>
       ))}
-      {stockRankings.length === 0 && <p style={{ padding: '16px', color: 'var(--color-text-secondary)' }}>아직 진행 중인 추천이 없습니다.</p>}
+      {stockRankings.length === 0 && <p style={{ padding: '16px', color: 'var(--color-text-secondary)' }}>아직 진행 중인 픽이 없습니다.</p>}
       {rankingPagination.totalPages > 1 && (
         <nav className="pagination" aria-label="랭킹 페이지">
           <button
@@ -110,9 +113,9 @@ export const MainPage: React.FC = () => {
     return (
       <div>
         <div style={{ padding: '16px' }}>
-          <p style={{ margin: '0 0 16px', color: 'var(--color-text-secondary)' }}>내 추천 종목 ({myStocks.length}/5)</p>
-          <button className="btn-primary" style={{ marginTop: 0 }} onClick={startAddingStock} disabled={myStocks.length >= 5}>
-            새 종목 추천하기
+          <p style={{ margin: '0 0 16px', color: 'var(--color-text-secondary)' }}>내 픽 ({myStocks.length}/10)</p>
+          <button className="btn-primary" style={{ marginTop: 0 }} onClick={startAddingStock} disabled={myStocks.length >= 10}>
+            새 종목 픽하기
           </button>
         </div>
         <div>
@@ -150,7 +153,7 @@ export const MainPage: React.FC = () => {
         {activeFriendId && friendStocks.map(stock => (
           <StockCard key={stock.userId + stock.symbol} stock={stock} ownerName={ownerName(stock.userId)} quote={quotes[stock.symbol]} />
         ))}
-        {activeFriendId && friendStocks.length === 0 && <p className="empty-message">{ownerName(activeFriendId)}님의 추천 종목이 없습니다.</p>}
+        {activeFriendId && friendStocks.length === 0 && <p className="empty-message">{ownerName(activeFriendId)}님의 픽이 없습니다.</p>}
         {friendIds.length === 0 && <p className="empty-message">등록된 친구가 없습니다.</p>}
       </div>
     );
@@ -159,9 +162,9 @@ export const MainPage: React.FC = () => {
   const renderHistory = () => (
     <div>
       {history.map(stock => (
-        <StockCard key={stock.sourceActiveStockId + stock.closedAt.seconds.toString()} stock={stock} ownerName={ownerName(stock.userId)} isHistory />
+        <StockCard key={stock.sourceActiveStockId + stock.closedAt.seconds.toString()} stock={stock} ownerName={ownerName(stock.userId)} quote={quotes[stock.symbol]} isHistory />
       ))}
-      {history.length === 0 && <p style={{ padding: '16px' }}>종료된 추천 기록이 없습니다.</p>}
+      {history.length === 0 && <p style={{ padding: '16px' }}>종료된 픽 기록이 없습니다.</p>}
     </div>
   );
 
