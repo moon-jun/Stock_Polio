@@ -8,12 +8,13 @@ interface Props {
   ownerName: string;
   ownerAvatar?: string;
   ownerAvatarPosition?: string;
+  ownerAvatarTransform?: string;
   quote?: StockQuote;
   isHistory?: boolean;
   onClick?: () => void;
 }
 
-export const StockCard: React.FC<Props> = ({ stock, ownerName, ownerAvatar, ownerAvatarPosition, quote, isHistory, onClick }) => {
+export const StockCard: React.FC<Props> = ({ stock, ownerName, ownerAvatar, ownerAvatarPosition, ownerAvatarTransform, quote, isHistory, onClick }) => {
   const currentPrice = isHistory ? (stock as StockHistory).sellPrice : quote?.price;
   const displayName = quote?.name || stock.name;
   
@@ -48,7 +49,7 @@ export const StockCard: React.FC<Props> = ({ stock, ownerName, ownerAvatar, owne
           {ownerName} 픽 · 등록가 {formatPrice(stock.buyPrice, stock.currency)}
         </p>
       </div>
-      <FriendAvatar name={ownerName} src={ownerAvatar} objectPosition={ownerAvatarPosition} />
+      <FriendAvatar name={ownerName} src={ownerAvatar} objectPosition={ownerAvatarPosition} transform={ownerAvatarTransform} />
       <div className="stock-price">
         {currentPrice ? (
           <>

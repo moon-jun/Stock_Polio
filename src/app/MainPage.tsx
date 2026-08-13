@@ -55,6 +55,7 @@ export const MainPage: React.FC = () => {
   const ownerName = (userId: string) => FRIENDS.find(user => user.id === userId)?.name || userId;
   const ownerAvatar = (userId: string) => FRIENDS.find(user => user.id === userId)?.avatar;
   const ownerAvatarPosition = (userId: string) => FRIENDS.find(user => user.id === userId)?.avatarPosition;
+  const ownerAvatarTransform = (userId: string) => FRIENDS.find(user => user.id === userId)?.avatarTransform;
 
   const startAddingStock = () => {
     if (userId) setIsAddModalOpen(true);
@@ -83,7 +84,7 @@ export const MainPage: React.FC = () => {
               <span className={`market-badge market-badge--${isKoreanStock(stock.symbol) ? 'domestic' : 'global'}`}>{isKoreanStock(stock.symbol) ? '국내' : '해외'}</span> {stock.symbol} · {ownerName(stock.userId)} 픽
             </p>
           </div>
-          <FriendAvatar name={ownerName(stock.userId)} src={ownerAvatar(stock.userId)} objectPosition={ownerAvatarPosition(stock.userId)} className="ranking-avatar" />
+          <FriendAvatar name={ownerName(stock.userId)} src={ownerAvatar(stock.userId)} objectPosition={ownerAvatarPosition(stock.userId)} transform={ownerAvatarTransform(stock.userId)} className="ranking-avatar" />
           <div className="ranking-return" style={{ textAlign: 'right' }}>
             <h4 style={{ margin: '0 0 4px', color: returnRate > 0 ? 'var(--color-success)' : returnRate < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
               {returnRate > 0 ? '+' : ''}{returnRate.toFixed(2)}%
@@ -130,6 +131,7 @@ export const MainPage: React.FC = () => {
               ownerName={ownerName(stock.userId)}
               ownerAvatar={ownerAvatar(stock.userId)}
               ownerAvatarPosition={ownerAvatarPosition(stock.userId)}
+              ownerAvatarTransform={ownerAvatarTransform(stock.userId)}
               quote={quotes[stock.symbol]} 
               onClick={() => setSelectedStockToClose(stock)}
             />
@@ -157,7 +159,7 @@ export const MainPage: React.FC = () => {
           ))}
         </div>
         {activeFriendId && friendStocks.map(stock => (
-          <StockCard key={stock.userId + stock.symbol} stock={stock} ownerName={ownerName(stock.userId)} ownerAvatar={ownerAvatar(stock.userId)} ownerAvatarPosition={ownerAvatarPosition(stock.userId)} quote={quotes[stock.symbol]} />
+          <StockCard key={stock.userId + stock.symbol} stock={stock} ownerName={ownerName(stock.userId)} ownerAvatar={ownerAvatar(stock.userId)} ownerAvatarPosition={ownerAvatarPosition(stock.userId)} ownerAvatarTransform={ownerAvatarTransform(stock.userId)} quote={quotes[stock.symbol]} />
         ))}
         {activeFriendId && friendStocks.length === 0 && <p className="empty-message">{ownerName(activeFriendId)}님의 픽이 없습니다.</p>}
         {friendIds.length === 0 && <p className="empty-message">등록된 친구가 없습니다.</p>}
@@ -168,7 +170,7 @@ export const MainPage: React.FC = () => {
   const renderHistory = () => (
     <div>
       {history.map(stock => (
-        <StockCard key={stock.sourceActiveStockId + stock.closedAt.seconds.toString()} stock={stock} ownerName={ownerName(stock.userId)} ownerAvatar={ownerAvatar(stock.userId)} ownerAvatarPosition={ownerAvatarPosition(stock.userId)} quote={quotes[stock.symbol]} isHistory />
+        <StockCard key={stock.sourceActiveStockId + stock.closedAt.seconds.toString()} stock={stock} ownerName={ownerName(stock.userId)} ownerAvatar={ownerAvatar(stock.userId)} ownerAvatarPosition={ownerAvatarPosition(stock.userId)} ownerAvatarTransform={ownerAvatarTransform(stock.userId)} quote={quotes[stock.symbol]} isHistory />
       ))}
       {history.length === 0 && <p style={{ padding: '16px' }}>종료된 픽 기록이 없습니다.</p>}
     </div>

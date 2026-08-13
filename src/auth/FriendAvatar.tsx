@@ -5,9 +5,10 @@ interface Props {
   src?: string;
   className?: string;
   objectPosition?: string;
+  transform?: string;
 }
 
-export const FriendAvatar: React.FC<Props> = ({ name, src, className = '', objectPosition }) => {
+export const FriendAvatar: React.FC<Props> = ({ name, src, className = '', objectPosition, transform }) => {
   const classes = ['friend-avatar', className].filter(Boolean).join(' ');
   if (src) {
     return (
@@ -17,7 +18,7 @@ export const FriendAvatar: React.FC<Props> = ({ name, src, className = '', objec
           alt=""
           style={{
             objectPosition,
-            transform: name === '현식' ? 'translateX(3px) scale(1.12)' : undefined,
+            transform,
           }}
         />
       </span>

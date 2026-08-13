@@ -10,12 +10,12 @@ import taesuAvatar from '../../picture/태수.png';
 import junhyunAvatar from '../../picture/준현.png';
 
 export const FRIENDS = [
-  { id: 'jaehyung', name: '재형', avatar: jaehyungAvatar },
+  { id: 'jaehyung', name: '재형', avatar: jaehyungAvatar, avatarPosition: 'center 53%', avatarTransform: 'translateX(4%)' },
   { id: 'junhyun', name: '준현', avatar: junhyunAvatar, avatarPosition: 'center bottom' },
-  { id: 'haeuk', name: '해욱', avatar: haeukAvatar },
-  { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar },
-  { id: 'taesu', name: '태수', avatar: taesuAvatar },
-  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center bottom' },
+  { id: 'haeuk', name: '해욱', avatar: haeukAvatar, avatarPosition: 'center 32%', avatarTransform: 'translateX(-3%)' },
+  { id: 'byeonghun', name: '병훈', avatar: byeonghunAvatar, avatarPosition: 'center 66%' },
+  { id: 'taesu', name: '태수', avatar: taesuAvatar, avatarPosition: 'center 32%' },
+  { id: 'hyunsik', name: '현식', avatar: hyunsikAvatar, avatarPosition: 'center bottom', avatarTransform: 'translateX(7%) scale(1.12)' },
   { id: 'jaeyoung', name: '재영', avatar: jaeyoungAvatar, avatarPosition: 'center bottom' },
 ];
 
