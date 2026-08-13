@@ -134,7 +134,7 @@ body {
 /* Stock Card */
 .stock-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px auto;
+  grid-template-columns: minmax(0, 1fr) 44px auto;
   grid-template-rows: auto auto;
   column-gap: 10px;
   align-items: center;
@@ -217,9 +217,9 @@ body {
 
 .friend-avatar {
   display: block;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   border-radius: 50%;
   object-fit: cover;
   object-position: center 32%;
@@ -227,7 +227,7 @@ body {
   color: var(--color-text-secondary);
   font-size: 14px;
   font-weight: 700;
-  line-height: 48px;
+  line-height: 44px;
   text-align: center;
 }
 
@@ -252,7 +252,7 @@ body {
 
 .ranking-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px auto;
+  grid-template-columns: minmax(0, 1fr) 44px auto;
   grid-template-rows: auto auto;
   column-gap: 10px;
   align-items: center;
