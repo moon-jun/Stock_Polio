@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { assertFails, assertSucceeds, initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
-import { doc, serverTimestamp, setDoc, writeBatch } from 'firebase/firestore';
+import { doc, increment, serverTimestamp, setDoc, writeBatch } from 'firebase/firestore';
 
 const rulesDescribe = process.env.FIRESTORE_EMULATOR_HOST ? describe : describe.skip;
 let env: RulesTestEnvironment;
@@ -65,6 +65,20 @@ rulesDescribe('Firestore rules', () => {
     }
     await assertFails(setDoc(doc(db, 'users', 'u1'), {
       activeStockIds: [...ids, 'u1__S10'],
+    }, { merge: true }));
+  });
+
+  it('날짜별 방문 횟수는 한 번씩만 증가시킨다', async () => {
+    const db = env.unauthenticatedContext().firestore();
+    const trafficRef = doc(db, 'traffic', '2026-08-19');
+    await assertSucceeds(setDoc(trafficRef, {
+      date: '2026-08-19', views: 1, updatedAt: serverTimestamp(),
+    }));
+    await assertSucceeds(setDoc(trafficRef, {
+      views: increment(1), updatedAt: serverTimestamp(),
+    }, { merge: true }));
+    await assertFails(setDoc(trafficRef, {
+      views: increment(2), updatedAt: serverTimestamp(),
     }, { merge: true }));
   });
 });

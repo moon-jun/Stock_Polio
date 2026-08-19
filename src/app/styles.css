@@ -254,6 +254,13 @@ body {
   font-size: 13px;
 }
 
+.traffic-summary {
+  margin: 12px 16px 4px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  text-align: right;
+}
+
 .stock-card--domestic { border-left: 4px solid #3182f6; }
 .stock-card--global { border-left: 4px solid #7c5ce5; }
 

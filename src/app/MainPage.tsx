@@ -11,6 +11,7 @@ import { CloseStockConfirm } from '../stock/ui/CloseStockConfirm';
 import { useStockPrices } from '../shared/useStockPrices';
 import './styles.css';
 import { calculateReturnRate, isKoreanStock, paginate } from '../stock/logic';
+import { recordVisit, watchWeeklyTraffic, type TrafficSummary } from '../shared/traffic';
 
 const FRIEND_TAB_ORDER = ['jaeyoung', 'hyunsik', 'haeuk', 'byeonghun', 'jaehyung', 'taesu', 'junhyun'];
 const RANKING_PAGE_SIZE = 10;
@@ -26,6 +27,11 @@ export const MainPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loginPurpose, setLoginPurpose] = useState<'login' | 'add' | null>(null);
   const [selectedStockToClose, setSelectedStockToClose] = useState<ActiveStock | null>(null);
+  const [traffic, setTraffic] = useState<TrafficSummary | null>(null);
+
+  useEffect(() => {
+    recordVisit().catch(error => console.warn('Visit tracking failed', error));
+  }, []);
 
   useEffect(() => {
     return onSnapshot(collection(db, 'activeStocks'), (snap) => {
@@ -46,6 +52,14 @@ export const MainPage: React.FC = () => {
       setHistory(snap.docs.map(doc => doc.data() as StockHistory));
     });
   }, [tab]);
+
+  useEffect(() => {
+    if (userId !== 'junhyun' || tab !== 'history') {
+      setTraffic(null);
+      return;
+    }
+    return watchWeeklyTraffic(setTraffic);
+  }, [userId, tab]);
 
   const priceSymbols = Array.from(new Set([
     ...activeStocks.map(stock => stock.symbol),
@@ -169,6 +183,11 @@ export const MainPage: React.FC = () => {
 
   const renderHistory = () => (
     <div>
+      {userId === 'junhyun' && traffic && (
+        <p className="traffic-summary">
+          방문 · 오늘 {traffic.todayViews}회 · 최근 7일 {traffic.weeklyViews}회
+        </p>
+      )}
       {history.map(stock => (
         <StockCard key={stock.sourceActiveStockId + stock.closedAt.seconds.toString()} stock={stock} ownerName={ownerName(stock.userId)} ownerAvatar={ownerAvatar(stock.userId)} ownerAvatarPosition={ownerAvatarPosition(stock.userId)} ownerAvatarTransform={ownerAvatarTransform(stock.userId)} quote={quotes[stock.symbol]} isHistory />
       ))}
